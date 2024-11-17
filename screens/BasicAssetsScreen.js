@@ -4,6 +4,7 @@ import { Text, View, StyleSheet, ScrollView, Pressable} from 'react-native';
 import colors from '../styles/colors';
 import { Card, Button, Icon } from '@rneui/themed';
 import { color, fonts, Image } from '@rneui/base';
+import { useNavigation } from '@react-navigation/native';
 
 const AssetCard = ({
   
@@ -19,6 +20,7 @@ const AssetCard = ({
   const default_image= require('../assets/rb_3009.png');
   
   const imageToShow = image ? { uri: image } : default_image;
+  
  
   return (
 
@@ -57,16 +59,22 @@ const AssetCard = ({
 
 const BasicAssetsScreen = () => {
 
-
+  const navigation = useNavigation();
+  const onPress = () => {
+    console.log("Card clicked!");
+    navigation.navigate('Asset Details' );
+    // You could navigate to a detail screen here, for example
+  }; 
   return (
 
       <View style={styles.container}>
         <ScrollView style={styles.scroll_view}>
-          <AssetCard></AssetCard>
-          <AssetCard></AssetCard>
-          <AssetCard></AssetCard>
-          <AssetCard></AssetCard>
-      
+          <Pressable onPress={onPress} >
+            <AssetCard></AssetCard>
+            <AssetCard></AssetCard>
+            <AssetCard></AssetCard>
+            <AssetCard></AssetCard>
+          </Pressable>
         </ScrollView>   
         <Pressable style={styles.add_button}>
           <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}} />
