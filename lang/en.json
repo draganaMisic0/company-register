@@ -1,0 +1,20 @@
+{
+    "settings":{
+        "settings": "Settings",
+        "selectLanguage":"Select a language"
+    },
+    "assets": {
+        "basicAssets": "Basic Assets"
+
+    },
+    "employees":{
+        "employees":"Employees"
+    },
+    "location":{
+        "location":"Locations"
+    },
+    "inventory":{
+        "inventory":"Inventory Lists"
+    }
+
+}

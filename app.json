@@ -1,5 +1,6 @@
 {
   "expo": {
+    
     "name": "company-register",
     "slug": "company-register",
     "version": "1.0.0",
@@ -22,6 +23,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    }, 
+    "plugins":[
+      "expo-sqlite", 
+      "expo-router"
+    ]
   }
 }

@@ -1,0 +1,19 @@
+{
+    "settings":{
+        "settings":"Podesavanja",
+        "selectLanguage":"Odaberi jezik"
+    },
+    "assets": {
+        "basicAssets": "Osnovna sredstva"
+
+    },
+    "employees":{
+        "employees":"Zaposleni"
+    },
+    "location":{
+        "location":"Lokacije"
+    },
+    "inventory":{
+        "inventory":"Popisne liste"
+    }
+}

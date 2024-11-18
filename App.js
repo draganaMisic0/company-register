@@ -1,5 +1,5 @@
 // App.js
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './screens/SplashScreen'; // Adjust the path as necessary
@@ -9,9 +9,31 @@ import colors from './styles/colors';
 import AssetDetailsScreen from './screens/AssetDetailsScreen';
 import EditAssetScreen from './screens/EditAssetScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import { createTables, connectToDatabase } from './database/database';
 
 const Stack = createStackNavigator();
 
+const loadTables = useCallback(async () =>{
+
+  try{
+    const db=await connectToDatabase();
+    if(!db)
+    {
+      throw new Error("Database connection return null or undefined");
+    }
+    await createTables(db);
+  }
+  catch(error){
+    console.error(error.message);
+
+  }
+}, []);
+const db = useSQLiteContext();
+useEffect(()=>{
+  
+  loadTables();
+  
+}, [])
 const App = () => {
   return (
     <NavigationContainer>
