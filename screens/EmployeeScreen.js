@@ -4,6 +4,9 @@ import colors from '../styles/colors';
 import { Avatar, Divider, Icon} from '@rneui/themed';
 
 
+
+
+
 const EmployeeCard = ({
 
   name="Unknown employee",
@@ -14,6 +17,25 @@ const EmployeeCard = ({
 
   const default_avatar= require('../assets/default_avatar.png');
   const avatarToShow = avatar ? { uri: avatar } : default_avatar;
+  const [loadedEmployees, setLoadedEmployees] = useState([]);
+
+  
+  useEffect(() => {
+
+    
+    
+  }, []);
+
+ /* const loadEmployeesFromDatabase = async (db) => {
+    try {
+      setLoadedEmployees(await getAllEmployees(db));
+      console.log('pronadjeni');
+
+    } catch (error) {
+      console.error('Error loading employees:', error);
+    }
+  };
+  */
 
   return (
 
