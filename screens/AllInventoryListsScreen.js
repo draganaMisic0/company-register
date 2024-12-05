@@ -1,64 +1,169 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Pressable } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Modal, TextInput, Alert} from 'react-native';
 import colors from '../styles/colors';
 import {Image } from '@rneui/base';
 import { ButtonGroup, Icon} from '@rneui/themed';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
+import { getAllInventoryLists } from '../database/db_queries';
+import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
+import { addInventoryList, deleteInventoryList } from '../database/db_queries';
 const InventoryListCard = ({
-
-    name="Inventory List Name"
+    id,
+    name="Inventory List Name",
+    setLoadedInventoryLists
 }) => {
+
+    const [deleteModalVisible, setDeleteModalVisible]= useState(false);
+    let db; 
+    db = useSQLiteContext();
+    
+    const loadInventoryLists = async (db) => {
+      try {
+        setLoadedInventoryLists(await getAllInventoryLists(db));
+      } catch (error) {
+        console.error('Error loading inventory lists:', error);
+      }
+    };
+    const onLongPress = () => {
+      
+      setDeleteModalVisible(true);
+    };
+    
+    const onCancelPress =( )=>{
+
+      setDeleteModalVisible(false);
+    }
+    const onDeleteButtonPress=()=>{
+
+      deleteInventoryList(db, id);
+      setDeleteModalVisible(false);
+      loadInventoryLists(db);
+    }
+    const navigation = useNavigation();
+    const onPress = (id) => {
+      console.log("Card clicked! id=" + id);
+      navigation.navigate('Inventory List' );
+      
+    };
     return (
 
-        <View style={styles.list_container}>
+      <View>
+        <Pressable onPress={() => onPress(id)}  onLongPress={onLongPress} >
+          <View style={styles.list_container}>
+          
             <Text style={styles.list_name}>{name}</Text>
-        </View>
+            <Modal animationType="slide" transparent={true} visible={deleteModalVisible}
+                            onRequestClose={() => {setDeleteModalVisible(false); } } >
+                    <View style={styles.modal_container}>
+                      <View style={styles.modal_content}>
+                        <Text style={styles.modal_title}>Delete Inventory List</Text>
+                        <Text style={{fontSize: 14, color:'white', alignSelf:'flex-start', marginBottom: 20}}>Are you sure you want to delete this inventory list?</Text>
+                      <View style={{flexDirection: 'row', alignSelf:'flex-end', alignItems:'center'}}>
+                      <Pressable style={{marginRight: 15}} onPress={onCancelPress}>
+                          <Text style={styles.submit_button_text}>Cancel</Text>
+                      </Pressable>
+                      <Pressable style={{backgroundColor: colors.secondary, width: 80, height: 30, borderRadius: 10, justifyContent:'center'}}
+                                  onPress={onDeleteButtonPress} >
+                          <Text style={styles.submit_button_text}>Delete</Text>
+                      </Pressable>
+                      </View>
+                      </View>
+                    </View>
+                  </Modal>
+         
+           </View>
+        </Pressable>
+      </View>
     );
 }
 
 const AllInventoryListsScreen = () => {
 
-    const navigation = useNavigation();
+    let db; 
+    db = useSQLiteContext();
+    const [loadedInventoryLists, setLoadedInventoryLists] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [newInventoryList, setNewInventoryList] = useState('');
+    
+    const loadInventoryLists = async (db) => {
+    try {
+      setLoadedInventoryLists(await getAllInventoryLists(db));
+    } catch (error) {
+      console.error('Error loading inventory lists:', error);
+    }
+  };
+    useEffect(() => {
+      console.log("loading inventory lists");
+      loadInventoryLists(db);
+    }, []);
 
-    const onPress = () => {
-    console.log("Card clicked!");
-    navigation.navigate('Inventory List' );
-    // You could navigate to a detail screen here, for example
+    
+
+   
+    const onAddButtonPress= () => {
+
+      console.log("add inventory list pressed");
+      
+
+    }
+    const onSubmitButtonPress = async () => {
+      try {
+        // Log the new inventory list name for debugging
+        console.log(`New inventory list: ${newInventoryList}`);
+    
+        if (!newInventoryList.trim()) {
+          console.error("Inventory list name cannot be empty.");
+          return;
+        }
+        const result = await addInventoryList(db, { name: newInventoryList });
+        await loadInventoryLists(db);
+        setModalVisible(false);
+      }
+      catch(error){
+        console.log(error);
+      }
     };
-
+    
 
     return (
         
         <View style={styles.container}>
             <ScrollView>
-                <Pressable onPress={onPress} >
-                    <InventoryListCard/>
+               
+            {
+              loadedInventoryLists.map((inventoryList) => 
                 
-                
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-                <InventoryListCard/>
-
-                <InventoryListCard/>
-
-                <InventoryListCard/><InventoryListCard/>
-                </Pressable>
-
+              <InventoryListCard id={inventoryList.id} setLoadedInventoryLists={setLoadedInventoryLists} key={inventoryList.id} {...inventoryList}/>
+                    
+              
+            
+            )}
+                      
+              
             </ScrollView>
-            <Pressable style={styles.add_button}>
+            <Pressable style={styles.add_button} onPress={()=> {setModalVisible(true); setNewInventoryList('');}}>
                 <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}} />
             </Pressable>
+            <Modal animationType="slide" transparent={true} visible={modalVisible}
+                  onRequestClose={() => {setModalVisible(false); } } >
+            
+            
+            <View style={styles.modal_container}>
+              <View style={styles.modal_content}>
+                <Text style={styles.modal_title}>Create a new inventory list</Text>
+                <TextInput style={styles.input} placeholder="Inventory list name..." placeholderTextColor={'white'} 
+                          value={newInventoryList} onChangeText={setNewInventoryList}/>
+                <Pressable style={styles.submit_button}
+                 onPress={onSubmitButtonPress} >
+                  <Text style={styles.submit_button_text}>Submit </Text>
+                </Pressable>
+              
+              </View>
+            </View>
+            </Modal>
+    
         </View>
     )
 }
@@ -115,6 +220,71 @@ const styles = StyleSheet.create({
     
  
   },
+  modal_container: {
+    flex: 1,
+    justifyContent: 'center',
+     
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // dim background
+  },
+  modal_content: {
+    width: '90%',
+    backgroundColor: colors.light_primary,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    color:'white', 
+    
+  },
+  modal_title: {
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: 'bold',
+    color: 'white',
+    alignSelf: 'flex-start'
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: 'white', 
+    
+  },
+  submit_button:{
+
+    borderRadius: 10, 
+    backgroundColor: colors.secondary,
+    width: 100, 
+    height: 35, 
+    alignContent: 'flex-end',
+    justifyContent: 'center', 
+    marginTop: 10
+   
+
+  }, 
+  submit_button_text: {
+
+    color: 'white', 
+    alignSelf: 'center', 
+    fontSize: 16, 
+   
+    
+  }, 
+  regular_button: {
+
+    color: 'white', 
+    fontSize: 14, 
+    alignSelf:'center'
+  }
 });
 
 

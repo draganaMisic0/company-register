@@ -7,12 +7,12 @@ import MenuScreen from './screens/MenuScreen'; // Adjust the path as necessary
 import InventoryListScreen from './screens/InventoryListScreen';
 import colors from './styles/colors';
 import AssetDetailsScreen from './screens/AssetDetailsScreen';
-import EditAssetScreen from './screens/EditAssetScreen';
+
 import SettingsScreen from './screens/SettingsScreen';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { connectToDatabase, getAllEmployees, addEmployee, createTables} from './database/db_queries';
 import * as FileSystem from 'expo-file-system';
-import {Asset}  from 'expo-asset';
+
 
 //import * as SQLite from 'expo-sqlite';
 //import {useSQLiteContext} from 'expo-sqlite/next';
@@ -59,10 +59,7 @@ const App = () => {
     const downloadPath = `${FileSystem.cacheDirectory}companyRegister.db`;
   
     try {
-      await FileSystem.copyAsync({
-        from: dbFilePath,
-        to: downloadPath,
-      });
+      
   
       console.log('Database copied to:', downloadPath);
     } catch (error) {
@@ -75,17 +72,10 @@ const App = () => {
       if (!db) {
         throw new Error("Database connection returned null or undefined");
       }
-      console.log("EVO TI JE BAZE PRIJE KREIRANJA TABELA");
-      console.log(db);
+     
       await createTables(db);
-      await addEmployee(db, {name: "Joka", email: "joka@mail", avatarUrl: "joka.png"});
-      const  allemployees = await getAllEmployees(db);
-      allemployees.forEach(employee => {
-        console.log(`Employee ID: ${employee.id}`);
-        console.log(`Name: ${employee.name}`);
-        console.log(`Email: ${employee.email}`);
-        console.log('----------------------------'); // Add a separator for better readability
-      });
+     
+    
 
       
     } catch (error) {

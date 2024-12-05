@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, ScrollView, Pressable} from 'react-native';
 import colors from '../styles/colors';
 import { Avatar, Divider, Icon} from '@rneui/themed';
+import { getAllEmployees} from '../database/db_queries';
+import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 
 
 
@@ -17,25 +19,9 @@ const EmployeeCard = ({
 
   const default_avatar= require('../assets/default_avatar.png');
   const avatarToShow = avatar ? { uri: avatar } : default_avatar;
-  const [loadedEmployees, setLoadedEmployees] = useState([]);
 
   
-  useEffect(() => {
-
-    
-    
-  }, []);
-
- /* const loadEmployeesFromDatabase = async (db) => {
-    try {
-      setLoadedEmployees(await getAllEmployees(db));
-      console.log('pronadjeni');
-
-    } catch (error) {
-      console.error('Error loading employees:', error);
-    }
-  };
-  */
+  
 
   return (
 
@@ -56,31 +42,32 @@ const EmployeeCard = ({
   )
 }
 
-
+let db;
 const EmployeeScreen = () => {
+  db = useSQLiteContext();
+  const [loadedEmployees, setLoadedEmployees] = useState([]);
+
+  const loadEmployeesFromDatabase = async (db) => {
+    try {
+      setLoadedEmployees(await getAllEmployees(db));
+    } catch (error) {
+      console.error('Error loading employees:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadEmployeesFromDatabase(db);
+  }, []);
 
   return (
     <View style={styles.container}>
        <ScrollView style={styles.scroll_view}>
-          <EmployeeCard></EmployeeCard>
+       {
+                  loadedEmployees.map((employee) => 
+                    <EmployeeCard key={employee.id} {...employee}/>
+                  )}
           <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
-          <Divider inset={true}  style={{ backgroundColor: 'grey'}} />
-          <EmployeeCard></EmployeeCard>
+          
        </ScrollView>
        <Pressable style={styles.add_button}>
           <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}} />
