@@ -2,9 +2,38 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import colors from '../styles/colors';
 import MapView, { Marker } from 'react-native-maps';
+import { use } from 'react';
+import { getAllLocations } from '../database/db_queries';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useNavigation } from '@react-navigation/native';
 
-const Location = () => {
+const Location = ({
 
+}) => {
+
+  let db; 
+  db=db = useSQLiteContext();
+  const navigation = useNavigation();
+  const [locations, setLocations]=useState([]);
+
+  const loadLocations = async (db)=>{
+
+    try{
+      setLocations(await getAllLocations(db));
+    }
+    catch(error){
+      console.log(error);
+    }
+  } 
+  useEffect(() => {
+    loadLocations(db);
+
+  }, [db]);
+
+  const onMarkerPress=()=>{
+
+    navigation.navigate('Assets at Location' );
+  }
   return (
     <View style={styles.container}>
         <MapView
@@ -17,7 +46,11 @@ const Location = () => {
         }}
 
       >
-        <Marker coordinate={{ latitude: 37.7749, longitude: -122.4194 }} title="San Francisco" />
+        {locations.map((location)=>(
+          <Marker key={location.id} coordinate={{latitude: location.latitude, longitude: location.longitude}}
+                  title={location.name} onPress={onMarkerPress}/>
+        ))}
+       
       </MapView>
     </View>
   );

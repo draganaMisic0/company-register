@@ -59,6 +59,12 @@ export const createTables = async (db) => {
             FOREIGN KEY (inventory_list_id) REFERENCES inventory_list(id) ON DELETE NO ACTION ON UPDATE NO ACTION
         );
     `;
+    const insertQuery1 = 
+      `INSERT INTO location (name, latitude, longitude) VALUES ('Paris', 48.8566, 2.3522)`;
+    
+    const insertQuery2=`INSERT INTO basic_asset (name, description, barcode, price, creation_date, photo_url, current_employee_id, 
+          current_location_id, old_employee_id, old_location_id, inventory_list_id) 
+          VALUES ('HP', 'hp', '000', 500.00, '2000/01/01', 'photo.jpg', 28, 2, 30, 2, 15)`;
 
     try {
       
@@ -74,6 +80,10 @@ export const createTables = async (db) => {
             console.log("after inventory");
             db.runSync(createBasicAssetQuery);
             console.log("after asset");
+            db.runSync(insertQuery1);
+            console.log("after insert location");
+            db.runSync(insertQuery2);
+            console.log("after asset insert");
             
             
            
@@ -105,7 +115,7 @@ const insertTestData = async (db, table) => {
       break;
     case 'location':
       insertQueries = [
-        //`INSERT INTO location (name, size, latitude, longitude) VALUES ('Test Head Office', 500, 37.7749, -122.4194)`,
+        `INSERT INTO location (name, latitude, longitude) VALUES ('Paris', 48.8566, 2.3522)`,
         //`INSERT INTO location (name, size, latitude, longitude) VALUES ('Warehouse A', 1500, 34.0522, -118.2437)`,
         //`INSERT INTO location (name, size, latitude, longitude) VALUES ('Branch Office', 300, 40.7128, -74.0060)`,
         //`INSERT INTO location (name, size, latitude, longitude) VALUES ('Warehouse B', 2000, 51.5074, -0.1278)`,
@@ -117,16 +127,10 @@ const insertTestData = async (db, table) => {
       break;
     case 'basic_asse':
       insertQueries = [
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Laptop A', 'Dell Latitude', 'LAP001', 1000.00, 1, 1, 'https://example.com/assetA.jpg')`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Printer B', 'HP LaserJet', 'PRI001', 300.00, 2, 2, NULL)`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Monitor C', 'Samsung 24 inch', 'MON001', 150.00, 3, 3, 'https://example.com/assetC.jpg')`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Projector D', 'Epson 4K', 'PROJ001', 800.00, 4, 4, 'https://example.com/assetD.jpg')`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Tablet E', 'Apple iPad', 'TAB001', 500.00, 5, 5, NULL)`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Smartphone F', 'Samsung Galaxy', 'PHN001', 700.00, 1, 6, 'https://example.com/assetF.jpg')`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Desk G', 'Office Desk', 'DSK001', 200.00, 2, 7, NULL)`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Chair H', 'Ergonomic Chair', 'CHR001', 150.00, 3, 8, 'https://example.com/assetH.jpg')`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Server I', 'Dell PowerEdge', 'SRV001', 3000.00, 4, 9, 'https://example.com/assetI.jpg')`,
-        `INSERT INTO fixed_asset (name, description, barcode, price, location_id, employee_id, photoUrl) VALUES ('Router J', 'Cisco Router', 'RTR001', 600.00, 5, 10, NULL)`
+        `INSERT INTO basic_asset (name, description, barcode, price, creation_date, photo_url, current_employee_id, 
+          current_location_id, old_employee_id, old_location_id, inventory_list_id) 
+          VALUES ('Laptop A', 'Dell Latitude', 'LAP001', 1000.00, 01.01.2001., 'photo.jpg', 28, 30, 15)`,
+      
       ];
       break;
     case 'inventory_list':
@@ -151,6 +155,8 @@ const insertTestData = async (db, table) => {
     await db.runAsync(query);
   }
 };
+
+//Inventory_list CRUD methods
 export const getAllInventoryLists = async(db) => {
 
   return new Promise((resolve, reject)=>{
@@ -166,8 +172,40 @@ export const getAllInventoryLists = async(db) => {
     });
   });
 };
+export const addInventoryList= async(db, inventoryList)=> {
+  console.log("ime"+inventoryList.name);
+  return new Promise((resolve, reject)=>{
+  db.withTransactionSync(()=>{
+    try{
+      let queryResult= db.runSync('insert into inventory_list(name) values ($name);', 
+                                    {$name: inventoryList.name}
+      );
+      resolve(queryResult);
+    }
+    catch (transactionError) {
+      console.error("Transaction failed:", transactionError);
+      reject(transactionError);
+    }
+  });
+});
+}
+export const deleteInventoryList = async (db, id) => {
+  console.log("id u delete "+id);
+  return new Promise((resolve, reject) => {
 
+    db.withTransactionSync(async ()=>{
+      try{
+        let queryResult=await db.runAsync('delete from inventory_list where id=$id;', { $id: id});
+        resolve(queryResult);
+      }
+      catch(error){
+        reject(error);
+      }
+    });
+  });
+}
 
+//Employee CRUD methods
 const getAllEmployeesQuery = "SELECT * FROM 'employee';";
 export const getAllEmployees = async (db) => {
     return new Promise((resolve, reject) => {
@@ -175,7 +213,12 @@ export const getAllEmployees = async (db) => {
       db.withTransactionSync( async () => {
         try{
           let rows = await db.getAllAsync(getAllEmployeesQuery, []);
-          console.log(rows);
+          rows.forEach(row => {
+            console.log(row);
+            console.log("\n");
+          });
+         
+          
           resolve(rows);
 
         }
@@ -246,39 +289,90 @@ export const getAllEmployees = async (db) => {
     })
   }
   
+//Assets CRUD methods
 
-  export const addInventoryList= async(db, inventoryList)=> {
-    console.log("ime"+inventoryList.name);
-    return new Promise((resolve, reject)=>{
-    db.withTransactionSync(()=>{
-      try{
-        let queryResult= db.runSync('insert into inventory_list(name) values ($name);', 
-                                      {$name: inventoryList.name}
-        );
-        resolve(queryResult);
-      }
-      catch (transactionError) {
-        console.error("Transaction failed:", transactionError);
-        reject(transactionError);
-      }
-    });
-  });
-  }
-  export const deleteInventoryList = async (db, id) => {
-    console.log("id u delete "+id);
+  export const getAllAssets = async (db) => {
     return new Promise((resolve, reject) => {
-
-      db.withTransactionSync(async ()=>{
+      
+      db.withTransactionSync( async () => {
         try{
-          let queryResult=await db.runAsync('delete from inventory_list where id=$id;', { $id: id});
-          resolve(queryResult);
+          let rows = await db.getAllAsync("select * from 'basic_asset'", []);
+          rows.forEach(row => {
+            console.log(row);
+            console.log("\n");
+          });
+          resolve(rows);
+
         }
         catch(error){
           reject(error);
         }
       });
     });
+  };
+
+  export const getLocationNameById = async (db, locationId) => {
+    console.log("u bazi id "+locationId);
+    return new Promise((resolve, reject) => {
+      db.withTransactionSync(async () => {
+        try{
+          let queryResult= await db.runAsync("select name from location where id=$current_location_id",
+                                             {$current_location_id: locationId});
+            console.log(queryResult);
+                                             const locationName = queryResult[0]?.name || "Unknown";
+                                             console.log("location name "+locationName);
+          console.log(resolve(queryResult));
+
+        }
+        catch(error){
+          reject(error);
+          console.log(error);
+        }
+      });
+    });
   }
+
+  export const getAssetsByLocationId = async (db, locationId)=>{
+
+    return new Promise((resolve, reject) => {
+      db.withTransactionSync(async () => {
+        try{
+          let queryResult= await db.runAsync("select * from basic_asset where current_location_id=$chosenLocation",
+                                             {$chosenLocation: locationId});
+          
+          resolve(queryResult);
+          return queryResult || [];
+
+        }
+        catch(error){
+          reject(error);
+          console.log(error);
+        }
+      });
+    });
+
+  }
+
+  //Location CRUD methods
+
+  export const getAllLocations = async (db) => {
+    return new Promise((resolve, reject) => {
+      
+      db.withTransactionSync( async () => {
+        try{
+          let rows = await db.getAllAsync("select * from 'location'", []);
+          resolve(rows);
+        }
+        catch(error){
+          reject(error);
+        }
+      });
+    });
+  };
+
+  
+       
+  
 
   
 

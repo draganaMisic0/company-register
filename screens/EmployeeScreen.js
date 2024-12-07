@@ -14,13 +14,12 @@ const EmployeeCard = ({
   email = "Unknown email",
   avatar_url, 
   setLoadedEmployees, 
-  setModalVisible, 
-  newEmployee
+  
 }) => {
 
  
   const [iconsVisible, setIconsVisible] = useState(false);
-  const [isPressed, setIsPressed] = useState(false); 
+ // const [isPressed, setIsPressed] = useState(false); 
   const [updateModalVisible, setUpdateModalVisible]= useState(false);
   const [employee, setEmployee] = useState({ name: '', email: '', avatarUrl: '' });
   
@@ -29,13 +28,13 @@ const EmployeeCard = ({
 
   const onLongPress = () => {
     setIconsVisible(true);
-    setIsPressed(true);
+    //setIsPressed(true);
     console.log('Icons Visible:', iconsVisible);
   };
   const onPress = () => {
-    if (iconsVisible || isPressed) {
+    if (iconsVisible) {
       setIconsVisible(false);
-      setIsPressed(false);
+     // setIsPressed(false);
     }
   };
   const loadEmployeesFromDatabase = async (db) => {
@@ -46,19 +45,27 @@ const EmployeeCard = ({
     }
   };
   const onEditPress = () => {
-    if (employee.name !== name || employee.email !== email || employee.avatarUrl !== avatar_url) {
-      setEmployee({ id: id, name: name, email: email, avatarUrl: avatar_url });
-    }
+   
+    employee.id=id;
+    employee.name=name;
+    employee.email=email;
+    employee.avatarUrl=avatar_url;
+   // setEmployee({ id: id, name: name, email: email, avatarUrl: avatar_url });
+    
     setUpdateModalVisible(true);
   };
   const onUpdatePress=()=>{
     
     console.log("kad klikne update "+employee.name);
     console.log("kad klikne update "+employee.email);
-    updateEmployee(db, employee);
-    loadEmployeesFromDatabase(db);
+    if(id!=employee.id ||name!=employee.name || email!=employee.email || avatar_url!=employee.avatarUrl){
+      updateEmployee(db, employee);
+      loadEmployeesFromDatabase(db);
+    }
+    
     setUpdateModalVisible(false);
     setIconsVisible(false);
+    //setIsPressed(false);
   }
   const onDeletePress = () =>{
 
@@ -72,9 +79,9 @@ const EmployeeCard = ({
 
     /*One employee card*/
     <Pressable onLongPress={onLongPress} onPress={onPress} >
-      <View style={[styles.employee_card, isPressed && styles.employee_card_pressed]}>
-     
-      <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary, margin: 10}}
+      <View style={styles.employee_card}>
+      {/*<View style={[styles.employee_card, isPressed && styles.employee_card_pressed]}>*/}
+      <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary}}
                         icon={{}} iconStyle={{}} imageProps={{}} onLongPress={() => alert("onLongPress")}
                         onPress={() => alert("onPress")} overlayContainerStyle={{}} placeholderStyle={{}}
                         rounded size='large' titleStyle={{color: colors.secondary}}/>
@@ -123,7 +130,7 @@ const EmployeeCard = ({
                 }/>
                 <View style={{flexDirection: 'row', alignSelf:'flex-end', alignItems:'center'}}>
                   <Pressable style={{marginRight: 15,}}>
-                      <Text onPress={()=>{setUpdateModalVisible(false); setIconsVisible(false); setIsPressed(false);}} 
+                      <Text onPress={()=>{setUpdateModalVisible(false); setIconsVisible(false); {/*setIsPressed(false);*/}}} 
                       style={styles.create_button_text}>Cancel</Text>
                   </Pressable>
                   <Pressable style={styles.create_button}
@@ -147,7 +154,7 @@ const EmployeeScreen = () => {
   const [loadedEmployees, setLoadedEmployees] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newEmployee, setNewEmployee] =useState({ name: '', email: '', avatarUrl: '' });
-  //const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 
   const defaultAvatar = require('../assets/new_employee_avatar.png');
   
@@ -158,7 +165,7 @@ const EmployeeScreen = () => {
       title: 'Cancel',
       containerStyle: { backgroundColor: colors.secondary },
       titleStyle: { color: 'white' },
-      onPress: () => setIsVisible(false),
+      onPress: () => setBottomSheetVisible(false),
     },
   ];
 
@@ -172,7 +179,7 @@ const EmployeeScreen = () => {
 
   useEffect(() => {
     loadEmployeesFromDatabase(db);
-  }, []);
+  }, [db]);
  
   onCreateButtonPress=()=>{
 
@@ -182,7 +189,6 @@ const EmployeeScreen = () => {
       setModalVisible(false);
       console.log(newEmployee.name);
 
-      
   }
 
   return (
@@ -207,7 +213,7 @@ const EmployeeScreen = () => {
                 onPress={()=>{setModalVisible(true)}}/>
        </Pressable>
 
-       {/* Bottom sheet
+       {/* Bottom sheet*/}
        <BottomSheet modalProps={{}} isVisible={bottomSheetVisible}>
         {list.map((l, i) => (
         <ListItem
@@ -219,7 +225,7 @@ const EmployeeScreen = () => {
               </ListItem.Content>
         </ListItem>
         ))}
-       </BottomSheet>*/}
+       </BottomSheet>
        {/* Modal for adding a new employee */}
        <Modal animationType="slide" transparent={true} visible={modalVisible}
                   onRequestClose={() => {setModalVisible(false); } } >

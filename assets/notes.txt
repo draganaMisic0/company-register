@@ -1,0 +1,26 @@
+EMPLOYEE SCREEN:
+- edit i delete button nisu na sredini
+- ista dugmad ne trebaju biti zatamljena
+- u svakom modalu dugmad nisu poravnata
+- avatar source ne radi 
+-kad se pritisne novi employee card ostanu delete i edit dugmad na prethodnom sto zezne id kartice koja je kliknuta, bitno!!!
+-promijeni da pri dodavanju radnika avatar ima plus znak pored sebe
+-bottom sheet ne radi 
+-too many re-renders
+-ikonice pored naslova Employees nepotrebne 
+
+CIJELA APLIKACIJA:
+-mozda da se ne moze dodati inventory lista sa istim imenom koje vec postoji 
+
+BASIC ASSETS SCREEN
+-ne znam kako da dobavim imena lokacija i zaposlenih 
+-ne znam kako da posaljem ime tog u AssetCard cak i ako uspijem da izvadim iz baze 
+-prilikom pritiskanja add dugmeta se vec javlja poruka too many re-renders :(
+
+
+ASSETS AT LOCATION
+-query za dobavljanje vjerovatno nije dobar 
+
+
+
+
