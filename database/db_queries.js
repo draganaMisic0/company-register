@@ -15,10 +15,11 @@ export const createTables = async (db) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
-            avatar_url TEXT NOT NULL
+            avatar_url TEXT
         );
     `;
 
+    
     const createLocationQuery = `
         CREATE TABLE IF NOT EXISTS location (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +65,8 @@ export const createTables = async (db) => {
       
         await db.withTransactionSync( () => { 
           console.log("before employee");
-            db.runSync(createEmployeeQuery); 
+            db.runSync(createEmployeeQuery);
+         
             console.log("after employee");
             db.runSync(createLocationQuery);
             console.log("after lcoation");
@@ -72,6 +74,7 @@ export const createTables = async (db) => {
             console.log("after inventory");
             db.runSync(createBasicAssetQuery);
             console.log("after asset");
+            
             
            
            
@@ -183,7 +186,7 @@ export const getAllEmployees = async (db) => {
     });
   };
 
-  const addEmployeeQuery = "INSERT INTO employee (name, email, avatar_url) VALUES ($name, $email,  $avatarUrl);";
+  const addEmployeeQuery = "INSERT INTO employee (name, email, avatar_url) VALUES ($name, $email,  $avatar);";
 
   export const addEmployee = async (db, employee) => {
    
@@ -193,7 +196,7 @@ export const getAllEmployees = async (db) => {
           let queryResult = db.runSync(addEmployeeQuery, { $name: employee.name, 
                                                                      $email: employee.email, 
                                                                     
-                                                                     $avatarUrl: employee.avatarUrl
+                                                                     $avatar_url: employee.avatar
                                                                     });
           resolve(queryResult);
         }
@@ -203,6 +206,46 @@ export const getAllEmployees = async (db) => {
       });
     });
   }
+  export const updateEmployee= async (db, employee) => {
+
+    console.log("udje u bazu "+employee.name);
+    console.log("udje u bazu "+employee.id);
+    console.log("udje u bazu "+employee.email);
+    return new Promise((resolve, reject) => {
+      db.withTransactionSync( async () => {
+        try{
+          let queryResult = await db.runAsync('update employee set name=$name, email=$email, avatar_url=$avatarUrl where id=$id;', 
+                                              { $name: employee.name, $email: employee.email,
+                                               $avatarUrl: employee.avatarUrl, $id: employee.id});
+                                                                   
+          
+          resolve(queryResult);
+        }
+        catch(error){
+
+          console.log(error);
+          reject(error);
+        }
+      });
+    });
+}
+  export const deleteEmployee= async (db, id) => {
+    console.log("id u delete "+id);
+    return new Promise((resolve, reject) => {
+
+      db.withTransactionSync(async ()=> {
+        try{
+          let queryResult = db.runSync('delete from employee where id=$id;', {$id: id});
+          resolve(queryResult);
+        }
+        catch(error){
+          console.log(error);
+          reject(error);
+        }
+      })
+    })
+  }
+  
 
   export const addInventoryList= async(db, inventoryList)=> {
     console.log("ime"+inventoryList.name);
@@ -236,6 +279,8 @@ export const getAllEmployees = async (db) => {
       });
     });
   }
+
+  
 
 
 
