@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import { getAllInventoryLists } from '../database/db_queries';
 import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { addInventoryList, deleteInventoryList } from '../database/db_queries';
+
+
 const InventoryListCard = ({
     id,
     name="Inventory List Name",
@@ -41,16 +43,15 @@ const InventoryListCard = ({
       setDeleteModalVisible(false);
       loadInventoryLists(db);
     }
-    const navigation = useNavigation();
-    const onPress = (id) => {
-      console.log("Card clicked! id=" + id);
-      navigation.navigate('Inventory List' );
-      
-    };
+    const navigation=useNavigation();
+    const handlePress=()=>{
+        navigation.navigate('Inventory List', {listId: id, listName: name});
+    }
+    
     return (
 
       <View>
-        <Pressable onPress={() => onPress(id)}  onLongPress={onLongPress} >
+        <Pressable onPress={handlePress} onLongPress={onLongPress} >
           <View style={styles.list_container}>
           
             <Text style={styles.list_name}>{name}</Text>
@@ -58,7 +59,9 @@ const InventoryListCard = ({
                             onRequestClose={() => {setDeleteModalVisible(false); } } >
                     <View style={styles.modal_container}>
                       <View style={styles.modal_content}>
+                      
                         <Text style={styles.modal_title}>Delete Inventory List</Text>
+                        
                         <Text style={{fontSize: 14, color:'white', alignSelf:'flex-start', marginBottom: 20}}>Are you sure you want to delete this inventory list?</Text>
                       <View style={{flexDirection: 'row', alignSelf:'flex-end', alignItems:'center'}}>
                       <Pressable style={{marginRight: 15}} onPress={onCancelPress}>
@@ -86,17 +89,24 @@ const AllInventoryListsScreen = () => {
     const [loadedInventoryLists, setLoadedInventoryLists] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [newInventoryList, setNewInventoryList] = useState('');
-    
+    const navigation=useNavigation();
     const loadInventoryLists = async (db) => {
     try {
-      setLoadedInventoryLists(await getAllInventoryLists(db));
+
+      const tempLists=await getAllInventoryLists(db);
+      console.log("tempList");
+      console.log(tempLists);
+      
+      setLoadedInventoryLists(tempLists);
+      console.log("duzina liste");
+      console.log(loadedInventoryLists.length);
     } catch (error) {
       console.error('Error loading inventory lists:', error);
     }
   };
-    useEffect(() => {
-      console.log("loading inventory lists");
-      loadInventoryLists(db);
+    useEffect( () => {
+     // console.log("loading inventory lists");
+       loadInventoryLists(db);
     }, []);
 
     
@@ -104,14 +114,14 @@ const AllInventoryListsScreen = () => {
    
     const onAddButtonPress= () => {
 
-      console.log("add inventory list pressed");
+     // console.log("add inventory list pressed");
       
 
     }
     const onSubmitButtonPress = async () => {
       try {
         // Log the new inventory list name for debugging
-        console.log(`New inventory list: ${newInventoryList}`);
+        //console.log(`New inventory list: ${newInventoryList}`);
     
         if (!newInventoryList.trim()) {
           console.error("Inventory list name cannot be empty.");
@@ -133,19 +143,17 @@ const AllInventoryListsScreen = () => {
             <ScrollView>
                
             {
-              loadedInventoryLists.map((inventoryList) => 
-                
-              <InventoryListCard id={inventoryList.id} setLoadedInventoryLists={setLoadedInventoryLists} key={inventoryList.id} {...inventoryList}/>
-                    
-              
-            
-            )}
-                      
+              loadedInventoryLists.map((list) => (
+              <InventoryListCard key={list.id} {...list} />
+                ))
+            }
+      
               
             </ScrollView>
             <Pressable style={styles.add_button} onPress={()=> {setModalVisible(true); setNewInventoryList('');}}>
                 <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}} />
             </Pressable>
+            
             <Modal animationType="slide" transparent={true} visible={modalVisible}
                   onRequestClose={() => {setModalVisible(false); } } >
             
@@ -155,11 +163,16 @@ const AllInventoryListsScreen = () => {
                 <Text style={styles.modal_title}>Create a new inventory list</Text>
                 <TextInput style={styles.input} placeholder="Inventory list name..." placeholderTextColor={'white'} 
                           value={newInventoryList} onChangeText={setNewInventoryList}/>
+                <View style={{flexDirection: 'row', justifyContent:'flex-end'}}>
+                <Pressable style={styles.cancel_button}
+                    onPress={()=> setModalVisible(false)} >
+                  <Text style={styles.submit_button_text}>Cancel </Text>
+                </Pressable>
                 <Pressable style={styles.submit_button}
                  onPress={onSubmitButtonPress} >
                   <Text style={styles.submit_button_text}>Submit </Text>
                 </Pressable>
-              
+                </View>
               </View>
             </View>
             </Modal>
@@ -263,6 +276,18 @@ const styles = StyleSheet.create({
 
     borderRadius: 10, 
     backgroundColor: colors.secondary,
+    width: 100, 
+    height: 35, 
+    alignContent: 'flex-end',
+    justifyContent: 'center', 
+    marginTop: 10
+   
+
+  }, 
+  cancel_button:{
+
+    borderRadius: 10, 
+    backgroundColor: colors.light_primary,
     width: 100, 
     height: 35, 
     alignContent: 'flex-end',

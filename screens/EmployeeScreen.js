@@ -1,12 +1,14 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { Text, View, StyleSheet, ScrollView, Pressable,  Modal, TextInput} from 'react-native';
+import { Text, View, StyleSheet, ScrollView, Pressable,  Modal, PermissionsAndroid, TextInput, Image, Platform, Alert} from 'react-native';
 import colors from '../styles/colors';
 import { Avatar, Divider, Icon, BottomSheet, ListItem} from '@rneui/themed';
 import { getAllEmployees, deleteEmployee, updateEmployee, addEmployee} from '../database/db_queries';
 import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import UserAvatar from 'react-native-user-avatar';
-
-
+import { useTranslation } from "react-i18next";
+import { launchCameraAsync, launchImageLibraryAsync } from "expo-image-picker";
+import { useNavigation } from '@react-navigation/native';
+import CameraScreen from './CameraScreen';
 
 const EmployeeCard = ({
   id,
@@ -46,12 +48,14 @@ const EmployeeCard = ({
   };
   const onEditPress = () => {
    
-    employee.id=id;
+   /* employee.id=id;
     employee.name=name;
     employee.email=email;
     employee.avatarUrl=avatar_url;
+    */
    // setEmployee({ id: id, name: name, email: email, avatarUrl: avatar_url });
-    
+    setEmployee({ id, name, email, avatarUrl: avatar_url });
+
     setUpdateModalVisible(true);
   };
   const onUpdatePress=()=>{
@@ -74,17 +78,20 @@ const EmployeeCard = ({
     loadEmployeesFromDatabase(db);
 
   }
-  
+
   return (
 
     /*One employee card*/
     <Pressable onLongPress={onLongPress} onPress={onPress} >
       <View style={styles.employee_card}>
       {/*<View style={[styles.employee_card, isPressed && styles.employee_card_pressed]}>*/}
+      <Image source={employee.avatarUrl ? { uri: employee.avatarUrl } : require("../assets/employeee.png")}
+                style={{height:60, width:60, borderRadius:50, margin:10}}></Image>
+                {/* 
       <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary}}
                         icon={{}} iconStyle={{}} imageProps={{}} onLongPress={() => alert("onLongPress")}
                         onPress={() => alert("onPress")} overlayContainerStyle={{}} placeholderStyle={{}}
-                        rounded size='large' titleStyle={{color: colors.secondary}}/>
+                        rounded size='large' titleStyle={{color: colors.secondary}} source={{avatar_url}}/>*/}
         <View style={styles.text_container}>
           <Text style={{ color: 'white', fontSize: 18, paddingBottom: 3 }}>
             {name}
@@ -117,7 +124,7 @@ const EmployeeCard = ({
                 <Text style={styles.modal_title}>Edit employee</Text>
                 <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary, margin: 10}}
                         icon={{}} iconStyle={{}} imageProps={{}} onLongPress={() => alert("onLongPress")}
-                        onPress={() => alert("onPress")} overlayContainerStyle={{}} placeholderStyle={{}}
+                        onPress={{}} overlayContainerStyle={{}} placeholderStyle={{}}
                         rounded size='large' titleStyle={{color: colors.secondary}}/>
                 
                 <TextInput style={styles.input} placeholder="Employee name..." placeholderTextColor={'white'} 
@@ -155,9 +162,11 @@ const EmployeeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [newEmployee, setNewEmployee] =useState({ name: '', email: '', avatarUrl: '' });
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [photoOptionsVisible, setPhotoOptionsVisible]=useState(false);
 
   const defaultAvatar = require('../assets/new_employee_avatar.png');
-  
+  const navigation = useNavigation();
+  const {t} = useTranslation();
   const list = [
     { title: 'Choose a photo' , containerStyle: {backgroundColor: colors.light_primary}},
     { title: 'Take a photo' , containerStyle: {backgroundColor: colors.light_primary}},
@@ -183,13 +192,120 @@ const EmployeeScreen = () => {
  
   onCreateButtonPress=()=>{
 
-      
+      console.log("newEmployee");
+      console.log(newEmployee.avatarUrl);
       addEmployee(db, newEmployee);
       loadEmployeesFromDatabase(db);
       setModalVisible(false);
       console.log(newEmployee.name);
 
   }
+  const changePhoto = () => {
+
+    setPhotoOptionsVisible(true);
+    /*
+    const options = ['Use Camera', 'Choose from Gallery', 'Remove Photo', 'Cancel'];
+    const cancelButtonIndex = 3;
+  
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options,
+          cancelButtonIndex,
+          destructiveButtonIndex: 2,
+        },
+        buttonIndex => {
+          handlePhotoAction(buttonIndex);
+        }
+      );
+    } else {
+      Alert.alert(
+        'Profile Photo',
+        'Choose an option',
+        [
+          { text: 'Use Camera', onPress: () => openCamera() },
+          { text: 'Choose from Gallery', onPress: () => openGallery()},
+          { text: 'Remove Photo', onPress: () => removePhoto(), style: 'destructive' },
+          { text: 'Cancel', onPress: ()=> cancel(),  style: 'cancel' }
+        ]
+      );
+    }
+      */
+  };
+  const cancel=()=>{
+
+  }
+  const removePhoto= ()=>{
+
+    setNewEmployee((prevEmployee) => ({ ...prevEmployee, avatarUrl: resultPhotoUri }));
+    setPhotoOptionsVisible(false);
+  }
+  let options = {
+      saveToPhotos: true,
+      mediaType: 'photo',
+      height: 1024,
+      width: 768
+  }
+  const openCamera = async () => {
+
+        
+    try{
+        /*
+        const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.CAMERA,
+            {
+              title: t('camera.permissionTitle'),
+              message: t('camera.permissionMessage'),
+              buttonNeutral: t('labels.askMeLater'),
+              buttonNegative: t('labels.cancel'),
+              buttonPositive: t('labels.ok')
+            }
+          );
+          */
+          let result;
+            
+           // if(granted === PermissionsAndroid.RESULTS.GRANTED){
+                
+                result = await launchCameraAsync(options, (res) => {
+              
+                    if (res.didCancel) {
+                    
+                    } else if (res.error) {
+                    
+                    } else if (res.customButton) {
+                    
+                      alert(res.customButton);
+                    } else {
+                   
+                   
+                      const source = { uri: res.uri };
+                    
+                    }
+                  }).catch((warn) => {console.warn(warn)});
+          //  }
+           // else{
+            
+           // }
+            const resultPhotoUri = (result.assets[0].uri);
+           // setInputPhotoUrl(resultPhotoUri);
+            setNewEmployee((prevEmployee) => ({ ...prevEmployee, avatarUrl: resultPhotoUri }));
+            setPhotoOptionsVisible(false);
+    }
+    catch(error)
+    {
+        console.error(error);
+    }
+};
+
+const openGallery = async () => {
+    const result = await launchImageLibraryAsync(options);
+    const resultUri = result.assets[0].uri;
+    
+    setNewEmployee((prevEmployee) => ({ ...prevEmployee, avatarUrl: resultUri }));
+    setPhotoOptionsVisible(false);
+}
+
+  
 
   return (
 
@@ -234,11 +350,17 @@ const EmployeeScreen = () => {
           <View style={styles.modal_container}>
               <View style={styles.modal_content}>
                 <Text style={styles.modal_title}>Create a new employee</Text>
-                <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary, margin: 10}}
-                        icon={{}} iconStyle={{}} imageProps={{}} onLongPress={() => alert("onLongPress")}
-                        onPress={{}} overlayContainerStyle={{}} placeholderStyle={{}}
-                        rounded size='large' titleStyle={{color: colors.secondary}}/>
                 
+                <Image source={newEmployee.avatarUrl ? { uri: newEmployee.avatarUrl } : require("../assets/employeee.png")}
+                style={{height:70, width:70, borderRadius:50, margin:10}}></Image>
+              
+                
+                {/* 
+                <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary, margin: 10}}
+                        onLongPress={() => alert("onLongPress")}
+                        onPress={handleImagePick}  source={{ uri: newEmployee.photoUrl }}
+                        rounded size='large' titleStyle={{color: colors.secondary}}/>
+                */}
                 <TextInput style={styles.input} placeholder="Employee name..." placeholderTextColor={'white'} 
                           value={newEmployee.name} onChangeText={(text) =>
                                               setNewEmployee((prevEmployee) => ({ ...prevEmployee, name: text }))
@@ -256,10 +378,39 @@ const EmployeeScreen = () => {
                      onPress={onCreateButtonPress} >
                     <Text style={styles.create_button_text}>Create</Text>
                    </Pressable>
+
+                   <Pressable style={styles.camera_button} onPress={changePhoto}>
+                    <Icon name="camera-outline" type="ionicon" size={18} iconStyle={{ color: 'black', fontWeight: 'bold' }}
+                      />
+                  </Pressable>
+
                 </View>
 
               </View>
           </View>
+        </Modal>
+
+        {/*Modal for photo change*/}
+        <Modal animationType="slide" transparent={true} visible={photoOptionsVisible}
+                  onRequestClose={() => {setPhotoOptionsVisible(false); } }>
+         <View style={styles.modal_photo_container}>    
+         <View style={styles.modal_photo_content}>   
+          <Text style={styles.modal_photo_title}>Choose an option</Text>
+          
+          <Pressable style={styles.photo_options} onPress={openCamera}>
+            <Text style={{color:'white', marginRight:0, marginBottom: 10, fontWeight: 'bold', alignSelf:'flex-end'}}
+            >USE CAMERA</Text>
+          </Pressable>
+          <Pressable style={styles.photo_options} onPress={openGallery}>
+            <Text style={{color:'white', marginRight:0, marginBottom: 10, fontWeight: 'bold', alignSelf:'flex-end'}}>
+            CHOOSE FROM GALLERY</Text>
+          </Pressable>
+          <Pressable style={styles.photo_options} onPress={removePhoto}>
+            <Text style={{color:'white', marginRight:0, marginBottom: 10, fontWeight: 'bold', alignSelf:'flex-end'}}>
+            REMOVE PHOTO</Text>
+          </Pressable>
+          </View>  
+           </View>
         </Modal>
     
 
@@ -361,7 +512,34 @@ const styles = StyleSheet.create({
     
 
   },
+  camera_button:{
+
+    position: 'absolute',
+    backgroundColor: colors.light_primary,
+    borderRadius: 50,
+    padding: 10,
+    height: 30, 
+    width: 30, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    paddingVertical: 5, 
+    paddingHorizontal: 5,
+    right: 80,
+    bottom: 150, 
+    opacity: 1, 
+    borderColor:  '#ffffff',
+    borderWidth: 1
+    
+
+  },
   modal_container: {
+    flex: 1,
+    justifyContent: 'center',
+     
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // dim background
+  },
+  modal_photo_container: {
     flex: 1,
     justifyContent: 'center',
      
@@ -382,9 +560,31 @@ const styles = StyleSheet.create({
     color:'white', 
     
   },
+
+  modal_photo_content: {
+    width: '90%',
+    backgroundColor: colors.light_primary,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'right',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    color:'white', 
+    
+  },
   modal_title: {
     fontSize: 18,
     marginBottom: 10,
+    fontWeight: 'bold',
+    color: 'white',
+    alignSelf: 'flex-start'
+  },
+  modal_photo_title:{
+    fontSize: 18,
+    marginBottom: 40,
     fontWeight: 'bold',
     color: 'white',
     alignSelf: 'flex-start'

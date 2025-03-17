@@ -49,8 +49,7 @@ const MenuScreen = () => {
             <Drawer.Screen  name={t('employees.employees')} component={EmployeeScreen} 
             options={{headerStyle:styles.header, headerRight: ()=>(
               <View style={styles.header_icons}>
-                <Icon name="create-outline" type="ionicon" iconStyle={{ marginRight:10}}/>
-                <Icon name="trash-outline" type="ionicon" iconStyle={{marginRight: 10}}/>
+                
 
               </View>
             ),drawerLabel: () => null, drawerIcon: ({ focused}) => <Icon name="people" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>

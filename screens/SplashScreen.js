@@ -23,11 +23,11 @@ const SplashScreen = ({ navigation }) => {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: 'white',
+          backgroundColor: colors.primary,
         }}
       >
-        <Entypo name="houzz" size={80} color={'red'} />
-        <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 20 }}>
+        <Entypo name="houzz" size={80} color={colors.primary} />
+        <Text style={{ color: colors.secondary, fontWeight: 'bold', fontSize: 20 }}>
           COMPANY REGISTER
         </Text>
       </View>

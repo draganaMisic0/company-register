@@ -1,6 +1,6 @@
 // App.js
 import React, { useCallback, useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './screens/SplashScreen'; // Adjust the path as necessary
 import MenuScreen from './screens/MenuScreen'; // Adjust the path as necessary
@@ -13,6 +13,10 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { connectToDatabase, getAllEmployees, addEmployee, createTables} from './database/db_queries';
 import * as FileSystem from 'expo-file-system';
 import { Icon } from '@rneui/base';
+import EmployeeScreen from './screens/EmployeeScreen';
+import CameraScreen from './screens/CameraScreen';
+import BasicAssetsScreen from './screens/BasicAssetsScreen';
+import AllInventoryListsScreen from './screens/AllInventoryListsScreen';
 
 
 //import * as SQLite from 'expo-sqlite';
@@ -54,15 +58,16 @@ const App = () => {
   //const [dbLoaded, setDbLoaded] = useState(false);
 
   const exportDatabase = async () => {
-    console.log("udje");
+    //console.log("udje");
     const databaseName = 'companyRegister.db';
     const dbFilePath = `${FileSystem.documentDirectory}SQLite/${databaseName}`;
     const downloadPath = `${FileSystem.cacheDirectory}companyRegister.db`;
-  
+    const navigation=useNavigation();
+    const [location, setLocation] = useState(null);
     try {
       
   
-      console.log('Database copied to:', downloadPath);
+      //console.log('Database copied to:', downloadPath);
     } catch (error) {
       console.error('Error copying database:', error);
     }
@@ -84,7 +89,9 @@ const App = () => {
       console.error(error.stack);
     }
   }, []);
-  
+  const updateLocation = (newLocation) => {
+    setLocation(newLocation);
+  };
   useEffect(()=>{
     
     
@@ -108,12 +115,20 @@ const App = () => {
         <Stack.Screen name="Inventory List"  component={InventoryListScreen} options={{headerStyle: { backgroundColor: colors.secondary}}}/>
         <Stack.Screen name="Asset Details" component={AssetDetailsScreen}  options={{headerShown: false, 
         headerLeft: () => ( <Icon name="arrow-back" type="ionicon" size={24} iconStyle={{ marginLeft: 10 }} 
-           onPress={() => navigation.goBack()} />),}} />
-        <Stack.Screen name="Assets at Location" component={AssetsAtLocationScreen} options={{headerStyle:{backgroundColor: colors.secondary}, 
+           onPress={() => navigation.goBack()} />),}} initialParams={{ updateLocation }}/>
+        <Stack.Screen name="Assets at Location" component={AssetsAtLocationScreen} options={({navigation})=>({headerStyle:{backgroundColor: colors.secondary}, 
         headerLeft: () => ( <Icon name="arrow-back" type="ionicon" size={24} iconStyle={{ marginLeft: 10 }} 
-           onPress={() => navigation.goBack()} />),}} />
+           onPress={() => navigation.goBack()} />),})} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={{headerShown: false}} />
+        <Stack.Screen name="Employee Screen" component={EmployeeScreen} />
+        <Stack.Screen name="Camera Screen" component={CameraScreen} />
+        <Stack.Screen name="Basic Assets" component={BasicAssetsScreen}/>
+        <Stack.Screen name="All Inventory Lists" component={AllInventoryListsScreen}/>
       </Stack.Navigator>
+
+      
+       
+     
     </NavigationContainer>
     </SQLiteProvider>
         
