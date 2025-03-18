@@ -130,13 +130,7 @@ const BasicAssetsScreen = () => {
     } catch (error) {
       console.error("Error loading locations", error);
     }
-    try {
-      const inventoryLists = await getAllInventoryLists(db); 
-      setAllInventoryLists(inventoryLists);  
-      //console.log("Dobijene lokacije:", inventoryLists);
-    } catch (error) {
-      console.error("Error loading locations", error);
-    }
+   
     
   }
   const onEmployeeSelect = (employeeId) => {
@@ -258,6 +252,7 @@ const BasicAssetsScreen = () => {
 
     useCallback(() => {
       loadAssets(db);
+      loadAssetElements();
     }, [db])
   );
 
@@ -278,6 +273,8 @@ const BasicAssetsScreen = () => {
         <Pressable
           onPress={() => navigation.navigate('Asset Details', { asset })}
            key={asset.id || index}
+
+
           >
           <AssetCard {...asset} />
         </Pressable>
@@ -288,11 +285,14 @@ const BasicAssetsScreen = () => {
         </ScrollView>   
         <Pressable style={styles.add_button}>
           <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}}
-           onPress={()=>setModalVisible(true)}/>
+           onPress={()=>{
+            setNewAsset({name:'', description:'', price:'', photoUrl:'', currentEmployee:'', 
+            oldEmployee:'', currentLocation:'', oldLocation:'', creationDate:''
+            });
+            setModalVisible(true);
+            }}/>
         </Pressable>
-        <Pressable style={styles.filter_button}>
-          <Icon name="filter" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold' }} />
-        </Pressable>
+        
 
 
 
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   add_button:{
     
     position: 'absolute',
-    bottom: 80, 
+    bottom: 40, 
     right: 20,  
     backgroundColor: colors.secondary, 
     borderRadius: 20, 

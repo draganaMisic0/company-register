@@ -99,7 +99,12 @@ const Location = ({
 
       <Pressable style={styles.add_button}>
           <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}}
-           onPress={()=>setModalVisible(true)}/>
+           onPress={()=>{
+           if(selectedCoordinates!=null){
+            setModalVisible(true);
+            setNewLocationName("");
+           }
+           }}/>
       </Pressable>
       
 

@@ -145,28 +145,28 @@
           const query=`select * from inventory_asset_details;`;
           try {
             // First Transaction for employee, location, and inventory
-            await db.runSync(createEmployeeQuery);
-            console.log("Employee table created");
-            await db.runSync(createLocationQuery);
-            console.log("Location table created");
-            await db.runSync(createInventoryListQuery);
-            console.log("Inventory List table created");
+           // await db.runSync(createEmployeeQuery);
+           // console.log("Employee table created");
+          //  await db.runSync(createLocationQuery);
+          //  console.log("Location table created");
+          //  await db.runSync(createInventoryListQuery);
+           // console.log("Inventory List table created");
     
             // Second Transaction for dropping and creating basic asset
            // await db.runSync(dropTable1);  // Drop if exists
-            await db.runSync(createBasicAssetQuery);
-            console.log("Basic Asset table created");
+          //  await db.runSync(createBasicAssetQuery);
+          //  console.log("Basic Asset table created");
     
             // Third Transaction for views and assets
             //await db.runSync(dropTable);  // Drop view if exists
-            await db.runSync(createAssetView);
+          //  await db.runSync(createAssetView);
             //console.log("Asset view created successfully");
     
-            await db.runSync(dropTable2);  // Drop another view if exists
-            await db.runSync(createListAsset);
-            console.log("List Asset table created");
-            await db.runSync(createList);
-            console.log("List created");
+          //  await db.runSync(dropTable2);  // Drop another view if exists
+          //  await db.runSync(createListAsset);
+           // console.log("List Asset table created");
+          //  await db.runSync(createList);
+          //  console.log("List created");
            // await db.runSync(insertQuery1);
 
     
@@ -309,6 +309,8 @@ export const deleteInventoryList = async (db, id) => {
 //Employee CRUD methods
 const getAllEmployeesQuery = "SELECT * FROM 'employee';";
 export const getAllEmployees = async (db) => {
+
+  console.log("udje u bazu");
     return new Promise((resolve, reject) => {
       
       db.withTransactionSync( async () => {
@@ -527,21 +529,21 @@ export const updateAsset = async (db, asset) => {
                        current_employee_id = $currentEmployeeId, 
                        current_location_id = $currentLocationId, 
                        old_employee_id = $oldEmployeeId, 
-                       old_location_id = $oldLocationId, 
+                       old_location_id = $oldLocationId
                       
                    WHERE id = $id;`,
                   {
-                      $id: asset.id,
-                      $name: asset.name,
-                      $description: asset.description,
-                      $barcode: asset.barcode,
-                      $price: asset.price,
-                      $creationDate: asset.creation_date,
-                      $photoUrl: asset.photo_url,
-                      $currentEmployeeId: asset.current_employee_id,
-                      $currentLocationId: asset.current_location_id,
-                      $oldEmployeeId: asset.old_employee_id,
-                      $oldLocationId: asset.old_location_id,
+                      $id: asset.asset_id,
+                      $name: asset.asset_name,
+                      $description: asset.asset_description,
+                      $barcode: asset.asset_barcode,
+                      $price: asset.asset_price,
+                      $creationDate: asset.asset_creation_date,
+                      $photoUrl: asset.asset_photo_url,
+                      $currentEmployeeId: asset.asset_current_employee_id,
+                      $currentLocationId: asset.asset_current_location_id,
+                      $oldEmployeeId: asset.asset_old_employee_id,
+                      $oldLocationId: asset.asset_old_location_id,
                      
                   }
               );

@@ -18,6 +18,7 @@ const InventoryListCard = ({
 }) => {
 
     const [deleteModalVisible, setDeleteModalVisible]= useState(false);
+  
     let db; 
     db = useSQLiteContext();
     
@@ -45,7 +46,7 @@ const InventoryListCard = ({
     }
     const navigation=useNavigation();
     const handlePress=()=>{
-        navigation.navigate('Inventory List', {listId: id, listName: name});
+        navigation.navigate('Inventory List', {listId: id, listName: name, setLoadedInventoryLists});
     }
     
     return (
@@ -144,7 +145,7 @@ const AllInventoryListsScreen = () => {
                
             {
               loadedInventoryLists.map((list) => (
-              <InventoryListCard key={list.id} {...list} />
+              <InventoryListCard key={list.id} {...list} setLoadedInventoryLists={setLoadedInventoryLists} />
                 ))
             }
       

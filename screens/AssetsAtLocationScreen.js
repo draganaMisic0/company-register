@@ -90,7 +90,7 @@ const AssetsAtLocationScreen =({route})=>{
                    
                       <View style={styles.modal_content}>
                       
-                        <Text style={styles.modal_title}>Delete Inventory List</Text>
+                        <Text style={styles.modal_title}>Delete Location</Text>
                         
                         <Text style={{fontSize: 14, color:'white', alignSelf:'flex-start', marginBottom: 20}}>Are you sure you want to delete this location?</Text>
                       <View style={{flexDirection: 'row', alignSelf:'flex-end', alignItems:'center'}}>

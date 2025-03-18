@@ -201,10 +201,56 @@ const InventoryListScreen = ({route}) => {
             </Picker>
           </View>
           
+         
+          
           <Text style={[styles.modal_title, { alignSelf: "center", fontSize: 14 }]}>OR</Text>
           <Pressable onPress={handleBarcodeScan} style={styles.barcode_button}>
             <Text style={styles.barcode_button_text}>Scan barcode</Text>
           </Pressable>
+
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={newAsset.name || ""} onValueChange={onAssetChange}
+                mode="dropdown" style={styles.picker}>
+                  
+                {allAssets.map((asset) => (
+                    
+              <Picker.Item key={asset.id} label={asset.name} value={asset.id} />
+          ))}
+            </Picker>
+          </View>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={newAsset.name || ""} onValueChange={onAssetChange}
+                mode="dropdown" style={styles.picker}>
+                  
+                {allAssets.map((asset) => (
+                    
+              <Picker.Item key={asset.id} label={asset.name} value={asset.id} />
+          ))}
+            </Picker>
+          </View>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={newAsset.name || ""} onValueChange={onAssetChange}
+                mode="dropdown" style={styles.picker}>
+                  
+                {allAssets.map((asset) => (
+                    
+              <Picker.Item key={asset.id} label={asset.name} value={asset.id} />
+          ))}
+            </Picker>
+          </View>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={newAsset.name || ""} onValueChange={onAssetChange}
+                mode="dropdown" style={styles.picker}>
+                  
+                {allAssets.map((asset) => (
+                    
+              <Picker.Item key={asset.id} label={asset.name} value={asset.id} />
+          ))}
+            </Picker>
+          </View>
+          
+
+
           <View style={{flexDirection:'row'}}>
                 <Pressable onPress={()=>setModalVisible(false)} style={[styles.confirm_button, {backgroundColor:colors.light_primary}]}>
                     <Text style={styles.barcode_button_text}>Cancel</Text>

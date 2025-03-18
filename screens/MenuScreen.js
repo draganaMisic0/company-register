@@ -40,7 +40,7 @@ const MenuScreen = () => {
             options={{headerStyle:styles.header, headerRight: ()=> (
               <View style={styles.header_icons}>
                 <Icon name="search-outline" type="ionicon" iconStyle={{marginRight:10}} />
-                <Icon name="language-outline" type="ionicon" iconStyle={{marginRight:10}} />
+               
               </View> ), 
 
             drawerLabel: () => null, drawerIcon: ({ focused }) => <Icon name="prism" type="ionicon" 
@@ -49,14 +49,31 @@ const MenuScreen = () => {
             <Drawer.Screen  name={t('employees.employees')} component={EmployeeScreen} 
             options={{headerStyle:styles.header, headerRight: ()=>(
               <View style={styles.header_icons}>
-                
+                <Icon name="search-outline" type="ionicon" iconStyle={{marginRight:10}} />
+              
 
               </View>
             ),drawerLabel: () => null, drawerIcon: ({ focused}) => <Icon name="people" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>
             <Drawer.Screen  name={t('location.location')} component={LocationScreen} 
-            options={{headerStyle:styles.header, drawerLabel: () => null, drawerIcon: ({ focused }) => <Icon name="map" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>
+            options={{headerStyle:styles.header, 
+            headerRight: ()=>(
+              <View style={styles.header_icons}>
+                <Icon name="search-outline" type="ionicon" iconStyle={{marginRight:10}} />
+              
+
+              </View>
+            ),
+            drawerLabel: () => null, drawerIcon: ({ focused }) => <Icon name="map" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>
             <Drawer.Screen  name={t('inventory.inventory')} component={AllInventoryListsScreen} 
-            options={{headerStyle:styles.header, drawerLabel: () => null, drawerIcon: ({ focused }) => <Icon name="file-tray-full" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>
+            options={{headerStyle:styles.header, 
+            headerRight: ()=>(
+              <View style={styles.header_icons}>
+                <Icon name="search-outline" type="ionicon" iconStyle={{marginRight:10}} />
+              
+
+              </View>
+            ),
+            drawerLabel: () => null, drawerIcon: ({ focused }) => <Icon name="file-tray-full" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>
             <Drawer.Screen  name={t('settings.settings')} component={SettingsScreen} 
             options={{headerStyle:styles.header, drawerLabel: () => null, drawerIcon: ({ focused }) => <Icon name="settings" type="ionicon" size={iconSize} color={focused ? activeColor : defaultColor}/>}}/>
         </Drawer.Navigator>

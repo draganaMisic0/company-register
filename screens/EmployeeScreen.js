@@ -24,6 +24,10 @@ const EmployeeCard = ({
  // const [isPressed, setIsPressed] = useState(false); 
   const [updateModalVisible, setUpdateModalVisible]= useState(false);
   const [employee, setEmployee] = useState({ name: '', email: '', avatarUrl: '' });
+  const default_image=require("../assets/employeee.png");
+  const imageToShow = avatar_url ? { uri: avatar_url } : default_image;
+  const [photoOptionsVisible, setPhotoOptionsVisible]=useState(false);
+
   
   let db;
   db = useSQLiteContext();
@@ -54,6 +58,7 @@ const EmployeeCard = ({
     employee.avatarUrl=avatar_url;
     */
    // setEmployee({ id: id, name: name, email: email, avatarUrl: avatar_url });
+  
     setEmployee({ id, name, email, avatarUrl: avatar_url });
 
     setUpdateModalVisible(true);
@@ -85,7 +90,7 @@ const EmployeeCard = ({
     <Pressable onLongPress={onLongPress} onPress={onPress} >
       <View style={styles.employee_card}>
       {/*<View style={[styles.employee_card, isPressed && styles.employee_card_pressed]}>*/}
-      <Image source={employee.avatarUrl ? { uri: employee.avatarUrl } : require("../assets/employeee.png")}
+      <Image source={imageToShow}
                 style={{height:60, width:60, borderRadius:50, margin:10}}></Image>
                 {/* 
       <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary}}
@@ -118,15 +123,18 @@ const EmployeeCard = ({
         <Modal animationType="slide" transparent={true} visible={updateModalVisible}
                   onRequestClose={() => {setUpdateModalVisible(false); } } >
             
-            
+        {/*Editing modal*/}
           <View style={styles.modal_container}>
               <View style={styles.modal_content}>
                 <Text style={styles.modal_title}>Edit employee</Text>
+                <Image source={imageToShow}
+                style={{height:60, width:60, borderRadius:50, margin:10}}></Image>
+                {/*}
                 <Avatar activeOpacity={0.2} avatarStyle={{}} containerStyle={{ backgroundColor: colors.primary, margin: 10}}
                         icon={{}} iconStyle={{}} imageProps={{}} onLongPress={() => alert("onLongPress")}
                         onPress={{}} overlayContainerStyle={{}} placeholderStyle={{}}
                         rounded size='large' titleStyle={{color: colors.secondary}}/>
-                
+                */}
                 <TextInput style={styles.input} placeholder="Employee name..." placeholderTextColor={'white'} 
                           value={employee.name} onChangeText={(text) =>
                                               setEmployee((prevEmployee) => ({ ...prevEmployee, name: text }))
@@ -144,6 +152,10 @@ const EmployeeCard = ({
                      onPress={onUpdatePress} >
                     <Text style={styles.create_button_text}>Update</Text>
                    </Pressable>
+                   <Pressable style={styles.camera_button} onPress={{}}>
+                    <Icon name="camera-outline" type="ionicon" size={18} iconStyle={{ color: 'black', fontWeight: 'bold' }}
+                      />
+                  </Pressable>
                 </View>
               </View>
           </View>
@@ -198,6 +210,7 @@ const EmployeeScreen = () => {
       loadEmployeesFromDatabase(db);
       setModalVisible(false);
       console.log(newEmployee.name);
+      setNewEmployee({ name: '', email: '', avatarUrl: '' });
 
   }
   const changePhoto = () => {
@@ -326,7 +339,9 @@ const openGallery = async () => {
 
        <Pressable style={styles.add_button}>
           <Icon name="add" type="ionicon" size={24} iconStyle={{ color: 'black', fontWeight:'bold'}} 
-                onPress={()=>{setModalVisible(true)}}/>
+                onPress={()=>{
+                  setNewEmployee({ name: '', email: '', avatarUrl: '' });
+                  setModalVisible(true);}}/>
        </Pressable>
 
        {/* Bottom sheet*/}
