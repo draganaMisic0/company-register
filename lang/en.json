@@ -7,6 +7,13 @@
         "basicAssets": "Basic Assets"
 
     },
+    "asset_details":{
+        "assetDetails":"Asset details",
+        "description": "Description",
+        "edit_asset": "Edit asset", 
+        "cancel": "Cancel", 
+        "edit": "Edit"
+    },
     "employees":{
         "employees":"Employees"
     },

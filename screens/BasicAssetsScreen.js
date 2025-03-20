@@ -70,7 +70,7 @@ export const AssetCard = ({
   );
 }
 
-const BasicAssetsScreen = () => {
+const BasicAssetsScreen = ({searchModal, setSearchModal}) => {
 
   let db;
   db = useSQLiteContext();
@@ -88,6 +88,8 @@ const BasicAssetsScreen = () => {
   const [allLocations, setAllLocations] = useState([]);
   const [allInventoryLists, setAllInventoryLists] =useState([]);
   const [photoOptionsVisible, setPhotoOptionsVisible]=useState(false);
+  const [searchValue, setSearchValue]=useState('');
+  const [filteredAssets, setFilteredAssets]=useState([]);
   const onPress = (assetId) => {
     //console.log("Card clicked!", assetId);
     navigation.navigate('Asset Details' , {assetId: assetId} );
@@ -248,6 +250,20 @@ const BasicAssetsScreen = () => {
 
     setPhotoOptionsVisible(true);
   }
+  const handleSearch=(searchValue)=>{
+
+    setSearchValue(searchValue);
+    setFilteredAssets(loadedAssets);
+    const filteredAssets = loadedAssets.filter(item => 
+      (item.asset_name && item.asset_name.toLowerCase().includes(searchValue.toLowerCase())) || 
+      (item.asset_description && item.asset_description.toLowerCase().includes(searchValue.toLowerCase()))
+    );
+    console.log("gotovo filtriranje");
+    console.log(filteredAssets);
+    setFilteredAssets(filteredAssets);
+   // setSearchModal(false);
+
+  }
   useFocusEffect(
 
     useCallback(() => {
@@ -388,7 +404,45 @@ const BasicAssetsScreen = () => {
           </View>
         </Modal>
 
+        {/*Search modal*/}
+
+        <Modal animationType="slide" transparent={true} visible={searchModal} 
+                  onRequestClose={() => {setSearchModal(false); } }>
+          <View style={styles.search_modal}>
+              
+              <TextInput style={styles.input_search} placeholder="Search..." placeholderTextColor={'white'} 
+                          value={searchValue} onChangeText={(text) =>{
+                            setFilteredAssets(loadedAssets);
+                            setSearchValue(text);
+                          }
+                                              
+              }/>
+              <Icon name="search-circle-outline" type="ionicon" iconStyle={{marginRight:14, color:'white', marginLeft:20, bottom:3}}
+                  onPress={()=>{
+                    console.log(searchValue);
+                    handleSearch(searchValue);}}
+               />
+          </View>
+
+          <ScrollView style={styles.scroll_view}>
+    
+    {
+      filteredAssets.map((asset, index) => (
+       <Pressable
+        onPress={() => navigation.navigate('Asset Details', { asset })}
+         key={asset.id || index}
+
+
+         >
+         <AssetCard {...asset} />
+       </Pressable>
+
+  ))
+    }
+      
+    </ScrollView>   
         
+      </Modal>
         
       
       </View>
@@ -400,6 +454,24 @@ const BasicAssetsScreen = () => {
 
 const styles = StyleSheet.create({
 
+  search_modal:{
+
+    width: '100%',
+    backgroundColor: colors.primary,
+    padding: 10,
+    flexDirection:'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    color:'white', 
+    marginTop:56
+    
+    
+
+  },
   modal_photo_container: {
     flex: 1,
     justifyContent: 'center',
@@ -662,6 +734,19 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: 'white',
+    
+    
+    
+  },
+  input_search: {
+    width: '80%',
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,

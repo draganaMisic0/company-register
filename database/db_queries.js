@@ -83,7 +83,7 @@
               JOIN location l_old ON ba.old_location_id = l_old.id;
              
           `;
-          const dropTable2=`DROP VIEW IF EXISTS inventory_asset_details;`;
+          const dropTable2=`DROP TABLE IF EXISTS list_has_asset;`;
           const createInventoryListDetailed=
           `CREATE VIEW IF NOT EXISTS "inventory_asset_details" AS
             SELECT 
@@ -112,7 +112,46 @@
               FOREIGN KEY (asset_id) REFERENCES basic_asset (id)
 
           );`;
+          const createPairs=
+              `CREATE TABLE list_has_assets (
+              id INTEGER PRIMARY KEY,
+              list_id INTEGER NOT NULL,
+              asset_id INTEGER NOT NULL,
+               FOREIGN KEY (list_id) REFERENCES inventory_list (id),
+                FOREIGN KEY (asset_id) REFERENCES basic_asset (id)
+              );`;
 
+          const createP=
+          `CREATE TABLE list_asset_pair (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              list_id INTEGER NOT NULL,
+              asset_id INTEGER NOT NULL,
+               FOREIGN KEY (list_id) REFERENCES inventory_list (id),
+                FOREIGN KEY (asset_id) REFERENCES basic_asset (id)
+              );`;
+          
+          const createPairsWithProperties=
+          `   CREATE VIEW IF NOT EXISTS "inventory_asset_connection" AS
+              SELECT 
+                  lha.id, 
+                  lha.list_id,
+                 
+                  iad.asset_id,
+                  iad.asset_name,
+                  iad.asset_description,
+                  iad.asset_barcode,
+                  iad.asset_price,
+                  iad.asset_creation_date,
+                  iad.asset_photo_url,
+                  iad.current_employee_name,
+                  iad.current_location_name,
+                  iad.old_employee_name,
+                  iad.old_location_name
+              FROM list_has_assets lha
+              JOIN asset_details iad ON lha.asset_id = iad.asset_id;
+
+          `;
+          const dropTable3=`DROP TABLE IF EXISTS list_has_assets;`;
           const createList=
           `CREATE VIEW IF NOT EXISTS "list_elements" AS
           SELECT 
@@ -128,12 +167,16 @@
               ad.current_location_name,
               ad.old_employee_name,
               ad.old_location_name
-          FROM list_has_asset lha
+          FROM list_has_assets lha
           JOIN asset_details ad ON lha.asset_id = ad.asset_id;`;
 
+          const alterTable=`ALTER TABLE list_has_assets
+              MODIFY COLUMN id INT AUTOINCREMENT,
+            ADD PRIMARY KEY (id);
+            `;
 
-          const deleteLocations=`DELETE FROM location;`;
-
+          const deletepairs=`DELETE FROM list_has_assets;`;
+          const renameTable=`RENAME TABLE list_asset_pair TO list_has_assets;`;
           const insertQuery1 = 
             `INSERT INTO location (name, latitude, longitude) VALUES ('Paris', 48.8566, 2.3522)`;
             `INSERT INTO location (name, latitude, longitude) VALUES ('London', 51.5074, -0.1278)`;
@@ -143,6 +186,7 @@
                 VALUES ('HP', 'hp', '000', 500.00, '2000/01/01', 'photo.jpg', 28, 2, 30, 2, 15)`;
           const deleteAllAssetsQuery=`DELETE FROM basic_asset;`;
           const query=`select * from inventory_asset_details;`;
+          const deleteAssetsQuery=`DELETE FROM basic_asset;`;
           try {
             // First Transaction for employee, location, and inventory
            // await db.runSync(createEmployeeQuery);
@@ -162,13 +206,21 @@
           //  await db.runSync(createAssetView);
             //console.log("Asset view created successfully");
     
-          //  await db.runSync(dropTable2);  // Drop another view if exists
+            //await db.runSync(dropTable2);  // Drop another view if exists
           //  await db.runSync(createListAsset);
            // console.log("List Asset table created");
           //  await db.runSync(createList);
           //  console.log("List created");
-           // await db.runSync(insertQuery1);
-
+           // await db.runSync(insertQuery1); 
+           //await db.runSync(deleteAllAssetsQuery);
+          // await db.runSync(createPairs);
+          //await db.runSync(createPairsWithProperties);
+          //console.log("kreirano");
+         //await db.runSync(dropTable3);
+       //  await db.runSync(deletepairs);
+        // await db.runSync(createP);
+        //await db.runSync(alterTable);
+           // await db.runSync(renameTable);
     
         } catch (error) {
             console.error('Failed to create tables:', error);
@@ -255,23 +307,43 @@ export const getAllInventoryLists = async(db) => {
     });
   });
 };
-export const getAllInventoryListItemsById = async(db, listId) => {
+export const removeItemFromList = async (db, itemId)=>{
 
-  return new Promise((resolve, reject)=>{
-    db.withTransactionSync(async () =>{
+  return new Promise((resolve, reject) => {
+
+    db.withTransactionSync(async ()=>{
       try{
-        let items=await db.getAllAsync("select * from 'list_elements' where list_id=$id;",{$id:listId});
-        console.log(items);
-       //
-       //  console.log(lists);
-        resolve(items);
+        let queryResult=await db.runAsync('delete from list_has_assets where id=$id;', { $id: itemId});
+        resolve(queryResult);
       }
       catch(error){
         reject(error);
       }
     });
   });
+}
+export const getAllInventoryListItemsById = async(db, listId) => {
+
+  
+
+  return new Promise((resolve, reject)=>{
+    db.withTransactionSync(async () =>{
+      try{
+        let items=await db.getAllAsync("select * from 'inventory_asset_connection' where list_id=$id;",{$id:listId});
+      
+       //
+       //  console.log(lists);
+        resolve(items);
+      }
+      catch(error){
+       
+        reject(error);
+      }
+    });
+  });
 };
+
+
 
 export const addInventoryList= async(db, inventoryList)=> {
  // console.log("ime"+inventoryList.name);
@@ -290,6 +362,26 @@ export const addInventoryList= async(db, inventoryList)=> {
   });
 });
 }
+export const addListAssetPair= async(db, list_id, asset_id) => {
+  // console.log("ime"+inventoryList.name);
+  console.log(list_id+"  "+asset_id);
+   return new Promise((resolve, reject)=>{
+   db.withTransactionSync(()=>{
+     try{
+       let queryResult= db.runSync('insert into list_has_assets(list_id, asset_id) values ($list_id, $asset_id);', 
+                                     {$list_id: list_id, $asset_id: asset_id}
+       );
+       resolve(queryResult);
+     }
+     catch (transactionError) {
+       console.error("Transaction failed:", transactionError);
+       reject(transactionError);
+     }
+   });
+ });
+ }
+
+
 export const deleteInventoryList = async (db, id) => {
   //console.log("id u delete "+id);
   return new Promise((resolve, reject) => {
@@ -306,11 +398,36 @@ export const deleteInventoryList = async (db, id) => {
   });
 }
 
+export const getAllListAssetPairs = async (db) => {
+
+
+  return new Promise((resolve, reject) => {
+    
+    db.withTransactionSync( async () => {
+      try{
+        let rows = await db.getAllAsync("select * from 'list_has_assets'", []);
+        rows.forEach(row => {
+          //console.log("ispisuje row");
+          //console.log(row);
+         // console.log("\n");
+        });
+       
+        
+        resolve(rows);
+
+      }
+      catch(error){
+        reject(error);
+      }
+    });
+  });
+};
+
 //Employee CRUD methods
 const getAllEmployeesQuery = "SELECT * FROM 'employee';";
 export const getAllEmployees = async (db) => {
 
-  console.log("udje u bazu");
+
     return new Promise((resolve, reject) => {
       
       db.withTransactionSync( async () => {
@@ -369,7 +486,7 @@ export const getAllEmployees = async (db) => {
         }
         catch(error){
 
-          console.log(error);
+          
           reject(error);
         }
       });
@@ -385,7 +502,7 @@ export const getAllEmployees = async (db) => {
           resolve(queryResult);
         }
         catch(error){
-          console.log(error);
+        
           reject(error);
         }
       })
@@ -396,6 +513,7 @@ export const getAllEmployees = async (db) => {
 
   export const getAssetById = async (db, id)=>{
 
+   
     return new Promise((resolve, reject) => {
       
       db.withTransactionSync( async () => {
@@ -505,7 +623,7 @@ export const getAllEmployees = async (db) => {
           resolve(queryResult);
         } catch (error) {
           reject(error);
-          console.log(error);
+         
         }
       });
     });
@@ -514,7 +632,8 @@ export const getAllEmployees = async (db) => {
   
 export const updateAsset = async (db, asset) => {
   //console.log("Updating asset with ID: " + asset.id);
-  //console.log(asset);
+  console.log("u update metodi");
+  console.log(asset);
   return new Promise((resolve, reject) => {
       db.withTransactionSync(async () => {
           try {
@@ -525,25 +644,19 @@ export const updateAsset = async (db, asset) => {
                        barcode = $barcode, 
                        price = $price, 
                        creation_date = $creationDate, 
-                       photo_url = $photoUrl, 
-                       current_employee_id = $currentEmployeeId, 
-                       current_location_id = $currentLocationId, 
-                       old_employee_id = $oldEmployeeId, 
-                       old_location_id = $oldLocationId
+                       photo_url = $photoUrl
+                     
                       
                    WHERE id = $id;`,
                   {
-                      $id: asset.asset_id,
-                      $name: asset.asset_name,
-                      $description: asset.asset_description,
-                      $barcode: asset.asset_barcode,
-                      $price: asset.asset_price,
-                      $creationDate: asset.asset_creation_date,
-                      $photoUrl: asset.asset_photo_url,
-                      $currentEmployeeId: asset.asset_current_employee_id,
-                      $currentLocationId: asset.asset_current_location_id,
-                      $oldEmployeeId: asset.asset_old_employee_id,
-                      $oldLocationId: asset.asset_old_location_id,
+                      $id: asset.id,
+                      $name: asset.name,
+                      $description: asset.description,
+                      $barcode: asset.barcode,
+                      $price: asset.price,
+                      $creationDate: asset.creationDate,
+                      $photoUrl: asset.photoUrl,
+                    
                      
                   }
               );
@@ -591,7 +704,7 @@ export const addAsset = async (db, asset) => {
 }
 export const deleteAsset= async (db, id) => {
  
-  console.log("asset id "+id);
+ 
   return new Promise((resolve, reject) => {
 
     db.withTransactionSync(async ()=> {
@@ -600,7 +713,7 @@ export const deleteAsset= async (db, id) => {
         resolve(queryResult);
       }
       catch(error){
-        console.log(error);
+       
         reject(error);
       }
     })
@@ -614,12 +727,13 @@ export const deleteAsset= async (db, id) => {
   export const getAllLocations = async (db) => {
     return new Promise((resolve, reject) => {
       
-      db.withTransactionSync( async () => {
+      db.withTransactionSync( () => {
         try{
-          let rows = await db.getAllAsync("select * from 'location'", []);
+          let rows = db.getAllSync("select * from 'location'", []);
           resolve(rows);
         }
         catch(error){
+          console.error("ERROR HAPPENED");
           reject(error);
         }
       });
@@ -659,7 +773,7 @@ export const deleteAsset= async (db, id) => {
           resolve(queryResult);
         }
         catch(error){
-          console.log(error);
+         
           reject(error);
         }
       })

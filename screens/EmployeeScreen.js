@@ -62,6 +62,7 @@ const EmployeeCard = ({
     setEmployee({ id, name, email, avatarUrl: avatar_url });
 
     setUpdateModalVisible(true);
+
   };
   const onUpdatePress=()=>{
     
@@ -72,8 +73,8 @@ const EmployeeCard = ({
       loadEmployeesFromDatabase(db);
     }
     
-    setUpdateModalVisible(false);
-    setIconsVisible(false);
+    setUpdateModalVisible(false);                     
+    setIconsVisible(false);                      
     //setIsPressed(false);
   }
   const onDeletePress = () =>{
@@ -160,13 +161,18 @@ const EmployeeCard = ({
               </View>
           </View>
         </Modal>
+
+        
       </View>
     </Pressable>
+
+
+                
   );
 };
 
 
-const EmployeeScreen = () => {
+const EmployeeScreen = ({searchModal, setSearchModal}) => {
 
   let db;
   db = useSQLiteContext();
@@ -175,7 +181,8 @@ const EmployeeScreen = () => {
   const [newEmployee, setNewEmployee] =useState({ name: '', email: '', avatarUrl: '' });
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const [photoOptionsVisible, setPhotoOptionsVisible]=useState(false);
-
+  const [filteredEmployees, setFilteredEmployees]=useState([]);
+  const [searchValue, setSearchValue]=useState('');
   const defaultAvatar = require('../assets/new_employee_avatar.png');
   const navigation = useNavigation();
   const {t} = useTranslation();
@@ -246,6 +253,20 @@ const EmployeeScreen = () => {
       */
   };
   const cancel=()=>{
+
+  }
+  const handleSearch=(searchValue)=>{
+
+    setSearchValue(searchValue);
+    setFilteredEmployees(loadedEmployees);
+    const filteredEmployees = loadedEmployees.filter(item => 
+      (item.name && item.name.toLowerCase().includes(searchValue.toLowerCase())) || 
+      (item.email && item.email.toLowerCase().includes(searchValue.toLowerCase()))
+    );
+    console.log("gotovo filtriranje");
+    console.log(filteredEmployees);
+    setFilteredEmployees(filteredEmployees);
+   // setSearchModal(false);
 
   }
   const removePhoto= ()=>{
@@ -427,7 +448,44 @@ const openGallery = async () => {
           </View>  
            </View>
         </Modal>
-    
+        
+
+
+         {/*Search modal*/}
+        
+                <Modal animationType="slide" transparent={true} visible={searchModal} 
+                          onRequestClose={() => {setSearchModal(false); } }>
+                  <View style={styles.search_modal}>
+                      
+                      <TextInput style={styles.input_search} placeholder="Search..." placeholderTextColor={'white'} 
+                                  value={searchValue} onChangeText={(text) =>{
+                                    setFilteredEmployees(loadedEmployees);
+                                    setSearchValue(text);
+                                  }
+                                                      
+                      }/>
+                      <Icon name="search-circle-outline" type="ionicon" iconStyle={{marginRight:14, color:'white', marginLeft:20, bottom:3}}
+                          onPress={()=>{
+                            console.log(searchValue);
+                            handleSearch(searchValue);}}
+                       />
+                  </View>
+        
+                  <ScrollView style={styles.scroll_view}>
+            
+            {
+              filteredEmployees.map((employee, index) => (
+              
+               
+                 <EmployeeCard {...employee} />
+              
+        
+          ))
+            }
+              
+            </ScrollView>   
+                
+              </Modal>
 
     </View>
   );
@@ -435,6 +493,38 @@ const openGallery = async () => {
 
 
 const styles = StyleSheet.create({
+
+  input_search: {
+    width: '80%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: 'white',
+    
+    
+    
+  },
+  search_modal:{
+  
+      width: '100%',
+      backgroundColor: colors.primary,
+      padding: 10,
+      flexDirection:'row',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+      color:'white', 
+      marginTop:56
+      
+      
+  
+    },
   container: {
     flex: 1,
     backgroundColor: colors.primary

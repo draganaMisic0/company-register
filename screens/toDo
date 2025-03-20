@@ -1,7 +1,40 @@
-ne prikazuje mi se slika kako treba u assset details
+import EmployeeScreen from "./EmployeeScreen"
 
-pretrazivanje svake liste po 2 kriterijuma nema nigdje
+
+
 
 ne radi editovanje lokacije i employee unutar asseta 
 
-asset CRUD=> CRD
+asset CRUD=>  CRD   , U napravljeno za opste samo i ne mogu skontati kako da radim sa employee i location 
+i ne refreshuje se kad se updatuje
+
+
+-------------------------------------------
+EmployeeScreen
+
+ne moze se editovati slika, previse rerendera 
+
+CRUD svi rade 
+
+---------------------------------------------
+
+
+
+-------------------------------------------------
+
+rijecnik za prevod radi ali nije zavrsen 
+
+
+
+--------------------------------
+inventore liste 
+
+
+
+U dodavanje rucno ne prikazuje se koji je selektovan, ali kad se izabere prikaze se 
+
+preko barcoda nije zavrseno 
+
+
+
+nigdje nece normalno da mi se poravnaju dugmad 

@@ -83,13 +83,15 @@ const InventoryListCard = ({
     );
 }
 
-const AllInventoryListsScreen = () => {
+const AllInventoryListsScreen = ({searchModal, setSearchModal}) => {
 
     let db; 
     db = useSQLiteContext();
     const [loadedInventoryLists, setLoadedInventoryLists] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [newInventoryList, setNewInventoryList] = useState('');
+    const [filteredLists, setFilteredLists]=useState([]);
+      const [searchValue, setSearchValue]=useState('');
     const navigation=useNavigation();
     const loadInventoryLists = async (db) => {
     try {
@@ -136,7 +138,20 @@ const AllInventoryListsScreen = () => {
         console.log(error);
       }
     };
-    
+    const handleSearch=(searchValue)=>{
+
+      setSearchValue(searchValue);
+      setFilteredLists(loadedInventoryLists);
+      const filteredLists = loadedInventoryLists.filter(item => 
+        (item.name && item.name.toLowerCase().includes(searchValue.toLowerCase()))
+      
+      );
+      console.log("gotovo filtriranje");
+      console.log(filteredLists);
+      setFilteredLists(filteredLists);
+     // setSearchModal(false);
+  
+    }
 
     return (
         
@@ -177,11 +192,80 @@ const AllInventoryListsScreen = () => {
               </View>
             </View>
             </Modal>
+
+
+{/*Search modal*/}
+        
+                <Modal animationType="slide" transparent={true} visible={searchModal} 
+                          onRequestClose={() => {setSearchModal(false); } }>
+                  <View style={styles.search_modal}>
+                      
+                      <TextInput style={styles.input_search} placeholder="Search..." placeholderTextColor={'white'} 
+                                  value={searchValue} onChangeText={(text) =>{
+                                    setFilteredLists(loadedInventoryLists);
+                                    setSearchValue(text);
+                                  }
+                                                      
+                      }/>
+                      <Icon name="search-circle-outline" type="ionicon" iconStyle={{marginRight:14, color:'white', marginLeft:20, bottom:3}}
+                          onPress={()=>{
+                            console.log(searchValue);
+                            handleSearch(searchValue);}}
+                       />
+                  </View>
+        
+                  <ScrollView style={styles.scroll_view}>
+            
+            {
+              filteredLists.map((list, index) => (
+              
+               
+                 <InventoryListCard {...list} />
+              
+        
+          ))
+            }
+              
+            </ScrollView>   
+                
+              </Modal>
     
         </View>
     )
 }
 const styles = StyleSheet.create({
+
+  input_search: {
+      width: '80%',
+      height: 40,
+      borderColor: 'gray',
+      borderWidth: 1,
+      borderRadius: 5,
+      paddingHorizontal: 10,
+      marginBottom: 10,
+      color: 'white',
+      
+      
+      
+    },
+    search_modal:{
+    
+        width: '100%',
+        backgroundColor: colors.primary,
+        padding: 10,
+        flexDirection:'row',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        color:'white', 
+        marginTop:56
+        
+        
+    
+      },
   container: {
     flex: 1,
     backgroundColor: colors.primary, // Change color here

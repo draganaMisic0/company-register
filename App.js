@@ -1,5 +1,5 @@
 // App.js
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useTransition } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './screens/SplashScreen'; // Adjust the path as necessary
@@ -17,6 +17,9 @@ import EmployeeScreen from './screens/EmployeeScreen';
 import CameraScreen from './screens/CameraScreen';
 import BasicAssetsScreen from './screens/BasicAssetsScreen';
 import AllInventoryListsScreen from './screens/AllInventoryListsScreen';
+import { useTranslation } from 'react-i18next';
+
+
 
 
 //import * as SQLite from 'expo-sqlite';
@@ -64,6 +67,7 @@ const App = () => {
     const downloadPath = `${FileSystem.cacheDirectory}companyRegister.db`;
     const navigation=useNavigation();
     const [location, setLocation] = useState(null);
+    
     try {
       
   
@@ -113,9 +117,7 @@ const App = () => {
         <Stack.Screen name="Splash Screen" component={SplashScreen} options={{headerShown: false}} />
         <Stack.Screen name="Home Screen" component={MenuScreen}  options={{headerShown: false}} />
         <Stack.Screen name="Inventory List"  component={InventoryListScreen} options={{headerStyle: { backgroundColor: colors.secondary}}}/>
-        <Stack.Screen name="Asset Details" component={AssetDetailsScreen}  options={{headerShown: false, 
-        headerLeft: () => ( <Icon name="arrow-back" type="ionicon" size={24} iconStyle={{ marginLeft: 10 }} 
-           onPress={() => navigation.goBack()} />),}} initialParams={{ updateLocation }}/>
+        <Stack.Screen name="Asset Details" component={AssetDetailsScreen}  options={{headerStyle: { backgroundColor: colors.secondary}}}/>
         <Stack.Screen name="Assets at Location" component={AssetsAtLocationScreen} options={({navigation})=>({headerStyle:{backgroundColor: colors.secondary}, 
         headerLeft: () => ( <Icon name="arrow-back" type="ionicon" size={24} iconStyle={{ marginLeft: 10 }} 
            onPress={() => navigation.goBack()} />),})} />

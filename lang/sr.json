@@ -6,6 +6,14 @@
     "assets": {
         "basicAssets": "Osnovna sredstva"
 
+
+    },
+    "asset_details":{
+        "assetDetails":"Detalji",
+        "description": "Opis", 
+        "edit_asset": "Izmijeni osnovno sredstvo", 
+        "cancel": "Poništi", 
+        "edit": "Izmijeni"
     },
     "employees":{
         "employees":"Zaposleni"
